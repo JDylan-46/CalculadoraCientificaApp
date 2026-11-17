@@ -1,20 +1,93 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <main class="calculator-shell">
+    <header class="calculator-header">
+      <div >
+        <br>
+        <h1>Calculadora científica</h1>
+      </div>
+      <ion-button fill="clear" class="history-button" aria-label="Mostrar historial" (click)="openHistory()">
+        <ion-icon slot="icon-only" name="calculator-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </header>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+    <section class="display-panel" aria-live="polite">
+      <ion-label>Operación</ion-label>
+      <ion-input class="expression" [value]="expression || '0'" readonly aria-label="Operación actual"></ion-input>
+      <strong class="result">{{ display }}</strong>
+      @if (error) {
+        <ion-text color="danger"><small>{{ error }}</small></ion-text>
+      }
+    </section>
+
+    <section class="keypad">
+      <ion-grid class="scientific-grid">
+        <ion-row>
+          @for (button of scientificButtons; track button.value) {
+          <ion-col size="4" size-sm="3">
+            <ion-button expand="block" fill="clear" class="scientific-button" (click)="add(button.value)">
+              {{ button.label }}
+            </ion-button>
+          </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+
+      <ion-grid class="basic-grid">
+        <ion-row>
+          @for (button of basicButtons; track $index) {
+          <ion-col size="3">
+            <ion-button expand="block" class="key-button" [class.operator]="['+', '-', '*', '/', '%'].includes(button)" (click)="add(button)">
+              {{ button }}
+            </ion-button>
+          </ion-col>
+          }
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <ion-button expand="block" color="medium" class="action-button" (click)="clear()">C</ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" color="primary" class="action-button equals" (click)="calculate()">=</ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </section>
+
+  </main>
+
+  <ion-modal [isOpen]="isHistoryOpen" [initialBreakpoint]="0.62" [breakpoints]="[0, 0.62, 0.9]" (didDismiss)="closeHistory()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Historial</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeHistory()" aria-label="Cerrar historial">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="modal-content">
+        @if (history.length) {
+          <ion-list lines="none">
+            @for (item of history; track $index) {
+              <ion-item>
+                <ion-label>
+                  <p>{{ item.expression }}</p>
+                  <strong>= {{ item.result }}</strong>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+
+          <ion-button expand="block" fill="outline" class="clear-history-button" (click)="clearHistory()">
+            Limpiar historial
+          </ion-button>
+        } @else {
+          <div class="empty-history">
+            <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+            <p>Aún no hay operaciones guardadas.</p>
+          </div>
+        }
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>
